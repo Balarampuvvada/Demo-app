@@ -14,18 +14,19 @@ This guide explains how to deploy your Security Patrol Tracking System to Render
 
 ### ✅ What Was Modified:
 
-1. **Created Production Dockerfiles:**
-   - `backend/Dockerfile.render` - Production backend with auto-migrations
-   - `frontend/Dockerfile.render` - Nginx-based static file serving
+1. **Unified Dockerfiles:**
+   - `backend/Dockerfile` - Single Dockerfile for both local dev and production (using BUILD_ENV argument)
+   - `frontend/Dockerfile` - Multi-stage Dockerfile supporting development and production builds
    
 2. **Added Nginx Configuration:**
-   - `frontend/nginx.conf` - Serves React SPA with API proxy
+   - `frontend/nginx.conf` - Serves React SPA with API proxy and runtime environment variable substitution
 
 3. **Created Render Blueprint:**
-   - `render.yaml` - Infrastructure as Code for Render
+   - `render.yaml` - Infrastructure as Code for Render with build arguments
 
 4. **Updated CORS Configuration:**
-   - Backend now supports production origins
+   - Backend now supports production origins via CORS_ORIGIN env var
+   - Nginx includes CORS headers for proxied API requests
 
 ---
 
@@ -83,7 +84,8 @@ Deploy each service individually:
 3. **Settings:**
    - **Name:** `security-patrol-backend`
    - **Environment:** Docker
-   - **Dockerfile Path:** `./backend/Dockerfile.render`
+   - **Dockerfile Path:** `./backend/Dockerfile`
+   - **Docker Command:** `--build-arg BUILD_ENV=production`
    - **Plan:** Free or Starter
 
 4. **Environment Variables:**
@@ -92,6 +94,7 @@ Deploy each service individually:
    JWT_SECRET=<generate random 64-char string>
    PORT=5000
    NODE_ENV=production
+   CORS_ORIGIN=*   (will update after frontend deployment)
    ```
 
 5. Click **Create Web Service**
@@ -104,16 +107,27 @@ Deploy each service individually:
 3. **Settings:**
    - **Name:** `security-patrol-frontend`
    - **Environment:** Docker
-   - **Dockerfile Path:** `./frontend/Dockerfile.render`
+   - **Dockerfile Path:** `./frontend/Dockerfile`
+   - **Docker Command:** `--build-arg BUILD_ENV=production --build-arg VITE_API_URL=<paste backend URL from Step 2>`
    - **Plan:** Free or Starter
 
 4. **Environment Variables:**
    ```
-   VITE_API_URL=<paste backend URL from Step 2>
    BACKEND_URL=<paste backend URL from Step 2>
    ```
 
 5. Click **Create Web Service**
+6. **Save the frontend URL** (e.g., `https://security-patrol-frontend.onrender.com`)
+
+#### Step 4: Update Backend CORS
+
+1. **Go to Backend Service** → **Environment**
+2. **Update CORS_ORIGIN:**
+   ```
+   CORS_ORIGIN=<paste frontend URL from Step 3>
+   ```
+3. **Click "Save Changes"**
+4. **Manual Deploy** → **Deploy Latest Commit** to apply changes
 
 ---
 
@@ -130,9 +144,14 @@ CORS_ORIGIN=https://your-frontend.onrender.com  # Optional
 
 ### Frontend Required Variables:
 ```bash
+# Build-time (passed via Docker Command):
 VITE_API_URL=https://your-backend.onrender.com
+
+# Runtime (Environment Variables):
 BACKEND_URL=https://your-backend.onrender.com
 ```
+
+**Note:** `VITE_API_URL` must be set at **build time** via Docker Command, not as an environment variable.
 
 ---
 
@@ -140,9 +159,16 @@ BACKEND_URL=https://your-backend.onrender.com
 
 ### Automatic Migration
 
-The backend Dockerfile automatically runs migrations on startup:
+The backend Dockerfile automatically runs migrations on startup using the BUILD_ENV argument:
+
+**Development:**
 ```dockerfile
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]
+CMD sh -c "npx prisma generate && npm start"
+```
+
+**Production (BUILD_ENV=production):**
+```dockerfile
+CMD sh -c "npx prisma migrate deploy && node src/server.js"
 ```
 
 ### Manual Seed Data (Optional)
@@ -210,13 +236,39 @@ After deployment completes:
 
 ### CORS Errors
 
-**Fix:**
-1. Add frontend URL to backend `CORS_ORIGIN` env var:
-   ```
-   CORS_ORIGIN=https://your-frontend.onrender.com
-   ```
+**Symptoms:**
+- Browser console shows: "Access to XMLHttpRequest blocked by CORS policy"
+- API calls fail with CORS errors
+- Frontend loads but can't communicate with backend
 
-2. Restart backend service
+**Root Causes:**
+1. Backend `CORS_ORIGIN` not set or incorrect
+2. Nginx not properly proxying requests
+3. `BACKEND_URL` environment variable missing or wrong
+
+**Fix:**
+1. **Update Backend CORS_ORIGIN:**
+   - Go to Backend Service → Environment
+   - Set `CORS_ORIGIN` to exact frontend URL:
+     ```
+     CORS_ORIGIN=https://your-frontend.onrender.com
+     ```
+   - No trailing slash!
+   
+2. **Verify Frontend BACKEND_URL:**
+   - Go to Frontend Service → Environment
+   - Ensure `BACKEND_URL` matches backend URL:
+     ```
+     BACKEND_URL=https://your-backend.onrender.com
+     ```
+
+3. **Rebuild Frontend if needed:**
+   - If you updated `VITE_API_URL` in Docker Command
+   - Manual Deploy → "Clear build cache & deploy"
+
+4. **Restart both services:**
+   - Backend first, then frontend
+   - Hard refresh browser (Ctrl+Shift+R)
 
 ### Slow Performance on Free Tier
 
@@ -332,16 +384,20 @@ npm run prisma:seed
 
 - [ ] Code pushed to Git repository
 - [ ] Render account created
-- [ ] Database service created
-- [ ] Backend service deployed
-- [ ] Frontend service deployed
-- [ ] Environment variables configured
-- [ ] Migrations ran successfully
-- [ ] Health check returns 200 OK
+- [ ] Database service created and status is "Available"
+- [ ] Backend service deployed with BUILD_ENV=production
+- [ ] Frontend service deployed with BUILD_ENV=production and VITE_API_URL set
+- [ ] All environment variables configured correctly
+- [ ] CORS_ORIGIN updated with actual frontend URL
+- [ ] BACKEND_URL set in frontend environment
+- [ ] Migrations ran successfully (check backend logs)
+- [ ] Health check returns 200 OK at `/health`
+- [ ] Frontend loads without errors
 - [ ] Can login with demo credentials
+- [ ] API calls work (no CORS errors)
 - [ ] QR scanning works
 - [ ] Admin panel accessible
-- [ ] All dashboards loading
+- [ ] All dashboards loading data correctly
 
 ---
 

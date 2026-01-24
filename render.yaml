@@ -1,3 +1,16 @@
+# Render Deployment Configuration
+# 
+# IMPORTANT: Update the URLs below with your actual Render service URLs after first deployment:
+# 1. Deploy backend first, get the URL (e.g., https://security-patrol-backend.onrender.com)
+# 2. Update CORS_ORIGIN in backend envVars with the frontend URL
+# 3. Update VITE_API_URL in frontend dockerCommand with the backend URL
+# 4. Update BACKEND_URL in frontend envVars with the backend URL
+# 5. Redeploy both services
+#
+# The dockerCommand uses build arguments to:
+# - BUILD_ENV=production: Tells Dockerfile to use production stage
+# - VITE_API_URL: Injects backend URL during frontend build
+#
 services:
   # PostgreSQL Database
   - type: pserv
@@ -17,7 +30,8 @@ services:
   - type: web
     name: security-patrol-backend
     env: docker
-    dockerfilePath: ./backend/Dockerfile.render
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: --build-arg BUILD_ENV=production
     plan: starter
     healthCheckPath: /health
     envVars:
@@ -32,28 +46,18 @@ services:
       - key: NODE_ENV
         value: production
       - key: CORS_ORIGIN
-        fromService:
-          name: security-patrol-frontend
-          type: web
-          property: host
+        value: https://security-patrol-frontend.onrender.com
 
   # Frontend
   - type: web
     name: security-patrol-frontend
     env: docker
-    dockerfilePath: ./frontend/Dockerfile.render
+    dockerfilePath: ./frontend/Dockerfile
+    dockerCommand: --build-arg BUILD_ENV=production --build-arg VITE_API_URL=https://security-patrol-backend.onrender.com
     plan: starter
     envVars:
-      - key: VITE_API_URL
-        fromService:
-          name: security-patrol-backend
-          type: web
-          property: host
       - key: BACKEND_URL
-        fromService:
-          name: security-patrol-backend
-          type: web
-          property: host
+        value: https://security-patrol-backend.onrender.com
 
 databases:
   - name: security-patrol-db

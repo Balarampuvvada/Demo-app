@@ -22,12 +22,15 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
     container_name: security-patrol-backend
     environment:
       DATABASE_URL: postgresql://patrol_user:patrol_pass@postgres:5432/security_patrol
       JWT_SECRET: your-secret-key-change-in-production
       PORT: 5000
       NODE_ENV: development
+      CORS_ORIGIN: http://localhost:3000
     ports:
       - "5000:5000"
     depends_on:
@@ -41,6 +44,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        BUILD_ENV: development
+      target: development
     container_name: security-patrol-frontend
     environment:
       VITE_API_URL: http://localhost:5000

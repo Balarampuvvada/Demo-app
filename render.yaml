@@ -1,0 +1,62 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: security-patrol-db
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile # Not used, managed database
+    envVars:
+      - key: POSTGRES_USER
+        value: patrol_user
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_DB
+        value: security_patrol
+
+  # Backend API
+  - type: web
+    name: security-patrol-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile.render
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: security-patrol-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 5000
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        fromService:
+          name: security-patrol-frontend
+          type: web
+          property: host
+
+  # Frontend
+  - type: web
+    name: security-patrol-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile.render
+    plan: starter
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: security-patrol-backend
+          type: web
+          property: host
+      - key: BACKEND_URL
+        fromService:
+          name: security-patrol-backend
+          type: web
+          property: host
+
+databases:
+  - name: security-patrol-db
+    databaseName: security_patrol
+    user: patrol_user
+    plan: starter

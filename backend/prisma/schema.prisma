@@ -1,0 +1,105 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GUARD
+  SUPERVISOR
+  CLIENT
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shifts     Shift[]
+  patrolLogs PatrolLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Site {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  latitude  Float?
+  longitude Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  checkpoints Checkpoint[]
+  shifts      Shift[]
+
+  @@index([name])
+}
+
+model Checkpoint {
+  id        String   @id @default(uuid())
+  siteId    String
+  name      String
+  qrCode    String   @unique
+  latitude  Float
+  longitude Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site       Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  patrolLogs PatrolLog[]
+
+  @@index([siteId])
+  @@index([qrCode])
+}
+
+model Shift {
+  id        String    @id @default(uuid())
+  guardId   String
+  siteId    String
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+  status    String    @default("ACTIVE") // ACTIVE, COMPLETED
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  guard      User        @relation(fields: [guardId], references: [id], onDelete: Cascade)
+  site       Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  patrolLogs PatrolLog[]
+
+  @@index([guardId])
+  @@index([siteId])
+  @@index([startTime])
+  @@index([status])
+}
+
+model PatrolLog {
+  id           String   @id @default(uuid())
+  shiftId      String
+  guardId      String
+  checkpointId String
+  timestamp    DateTime @default(now())
+  latitude     Float
+  longitude    Float
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shift      Shift      @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  guard      User       @relation(fields: [guardId], references: [id], onDelete: Cascade)
+  checkpoint Checkpoint @relation(fields: [checkpointId], references: [id], onDelete: Cascade)
+
+  @@index([shiftId])
+  @@index([guardId])
+  @@index([checkpointId])
+  @@index([timestamp])
+}

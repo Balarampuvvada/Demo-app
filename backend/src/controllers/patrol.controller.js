@@ -2,11 +2,15 @@ const prisma = require('../config/db');
 
 const startShift = async (req, res) => {
   try {
-    const { siteId } = req.body;
+    const { siteId, latitude, longitude } = req.body;
     const guardId = req.user.id;
 
     if (!siteId) {
       return res.status(400).json({ error: 'Site ID is required' });
+    }
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'GPS location is required to start shift' });
     }
 
     // Check if guard already has an active shift
@@ -25,7 +29,9 @@ const startShift = async (req, res) => {
       data: {
         guardId,
         siteId,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        startLatitude: latitude,
+        startLongitude: longitude
       },
       include: {
         site: true,
@@ -49,7 +55,12 @@ const startShift = async (req, res) => {
 const endShift = async (req, res) => {
   try {
     const { shiftId } = req.params;
+    const { latitude, longitude } = req.body;
     const guardId = req.user.id;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({ error: 'GPS location is required to end shift' });
+    }
 
     const shift = await prisma.shift.findFirst({
       where: {
@@ -67,7 +78,9 @@ const endShift = async (req, res) => {
       where: { id: shiftId },
       data: {
         endTime: new Date(),
-        status: 'COMPLETED'
+        status: 'COMPLETED',
+        endLatitude: latitude,
+        endLongitude: longitude
       },
       include: {
         site: true,

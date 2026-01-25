@@ -6,6 +6,21 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  // Check if database is already seeded
+  const existingUsers = await prisma.user.count();
+  if (existingUsers > 0) {
+    console.log('✅ Database already seeded, skipping...');
+    console.log('\n📋 Demo Credentials:');
+    console.log('-------------------');
+    console.log('Guard 1: guard1@security.com');
+    console.log('Guard 2: guard2@security.com');
+    console.log('Supervisor: supervisor@security.com');
+    console.log('Client: client@company.com');
+    console.log('Password: password123');
+    console.log('-------------------');
+    return;
+  }
+
   // Create users
   const hashedPassword = await bcrypt.hash('password123', 10);
 

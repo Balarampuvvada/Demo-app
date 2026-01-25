@@ -67,31 +67,55 @@ const SupervisorDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url('/images/security-background.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative text-xl text-white drop-shadow-lg">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Same background as login page */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/images/security-background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Header with glass effect */}
+      <div className="relative bg-white/10 backdrop-blur-xl border-b border-white/20 text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Supervisor Dashboard</h1>
-            <p className="text-sm">Welcome, {user?.name}</p>
+            <h1 className="text-2xl font-bold drop-shadow-lg">Supervisor Dashboard</h1>
+            <p className="text-sm text-white/90">Welcome, {user?.name}</p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => navigate('/admin')}
-              className="px-4 py-2 bg-green-600 rounded hover:bg-green-700"
+              className="px-4 py-2 bg-green-500/80 backdrop-blur-sm rounded-lg hover:bg-green-600/80 border border-white/30 transition-all shadow-lg"
             >
               Admin Panel
             </button>
             <button
               onClick={logout}
-              className="px-4 py-2 bg-blue-700 rounded hover:bg-blue-800"
+              className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 border border-white/30 transition-all shadow-lg"
             >
               Logout
             </button>
@@ -99,40 +123,40 @@ const SupervisorDashboard = () => {
         </div>
       </div>
 
-      <div className="container mx-auto p-4">
+      <div className="relative container mx-auto p-4">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Active Patrols</p>
-                <p className="text-3xl font-bold text-blue-600">{livePatrols.length}</p>
+                <p className="text-white/80 text-sm">Active Patrols</p>
+                <p className="text-3xl font-bold text-white drop-shadow-lg">{livePatrols.length}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-500/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-blue-300/50">
                 <span className="text-2xl">👮</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Guards on Duty</p>
-                <p className="text-3xl font-bold text-green-600">{guardsOnDuty.length}</p>
+                <p className="text-white/80 text-sm">Guards on Duty</p>
+                <p className="text-3xl font-bold text-white drop-shadow-lg">{guardsOnDuty.length}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-500/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-green-300/50">
                 <span className="text-2xl">✓</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">Alerts</p>
-                <p className="text-3xl font-bold text-red-600">{alerts.length}</p>
+                <p className="text-white/80 text-sm">Alerts</p>
+                <p className="text-3xl font-bold text-white drop-shadow-lg">{alerts.length}</p>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-red-500/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-red-300/50">
                 <span className="text-2xl">⚠</span>
               </div>
             </div>
@@ -140,34 +164,34 @@ const SupervisorDashboard = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow mb-4">
-          <div className="flex border-b">
+        <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl mb-4 border border-white/20">
+          <div className="flex border-b border-white/20">
             <button
               onClick={() => setActiveTab('live')}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium transition-all ${
                 activeTab === 'live'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-400 text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
               Live Patrols
             </button>
             <button
               onClick={() => setActiveTab('alerts')}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium transition-all ${
                 activeTab === 'alerts'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-400 text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
               Alerts {alerts.length > 0 && `(${alerts.length})`}
             </button>
             <button
               onClick={() => setActiveTab('guards')}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium transition-all ${
                 activeTab === 'guards'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-400 text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
               Guards on Duty

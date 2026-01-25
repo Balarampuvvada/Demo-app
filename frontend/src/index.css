@@ -15,3 +15,28 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Glass Morphism Theme */
+.glass-bg {
+  @apply bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900;
+}
+
+.glass-card {
+  @apply bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl border border-white/20;
+}
+
+.glass-header {
+  @apply bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg;
+}
+
+.glass-button {
+  @apply bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 transition-all shadow-lg;
+}
+
+.glass-input {
+  @apply bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 focus:ring-2 focus:ring-blue-400 focus:border-transparent;
+}
+
+.text-glass {
+  @apply text-white drop-shadow-lg;
+}

@@ -34,20 +34,53 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background with your custom image - NO OVERLAY FOR TESTING */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/images/security-background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Dark overlay - uncomment to add back */}
+      {/* <div className="absolute inset-0 bg-black/50" /> */}
+
+      {/* Security badge icon overlay */}
+      <div className="absolute top-20 right-20 opacity-5">
+        <svg className="w-64 h-64" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5L8.91 11.6 11 13.69l4.59-4.59L17 10.5l-6 6z"/>
+        </svg>
+      </div>
+      <div className="absolute bottom-20 left-20 opacity-5">
+        <svg className="w-48 h-48" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/>
+        </svg>
+      </div>
+
+      {/* Login Card - Blurred and Transparent */}
+      <div className="max-w-md w-full mx-4 space-y-8 p-8 bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl z-10 border border-white/20">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+          {/* Security Icon */}
+          <div className="mx-auto w-16 h-16 bg-blue-500/80 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 shadow-lg">
+            <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5L8.91 11.6 11 13.69l4.59-4.59L17 10.5l-6 6z"/>
+            </svg>
+          </div>
+          <h2 className="text-center text-3xl font-extrabold text-white drop-shadow-lg">
             Security Patrol Tracker
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account
+          <p className="mt-2 text-center text-sm text-white/90 drop-shadow">
+            Digital Checkpoint Verification System
           </p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-500/20 backdrop-blur-sm border border-red-300/50 text-white px-4 py-3 rounded-lg shadow-lg">
               {error}
             </div>
           )}
@@ -63,7 +96,7 @@ const Login = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-t-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -79,7 +112,7 @@ const Login = () => {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-b-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -91,19 +124,21 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500/80 backdrop-blur-sm hover:bg-blue-600/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 disabled:opacity-50 shadow-lg transition-all"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 p-4 bg-gray-50 rounded-md">
-          <p className="text-xs text-gray-600 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-gray-700">Guard: guard1@security.com</p>
-          <p className="text-xs text-gray-700">Supervisor: supervisor@security.com</p>
-          <p className="text-xs text-gray-700">Client: client@company.com</p>
-          <p className="text-xs text-gray-700 mt-1">Password: password123</p>
+        <div className="mt-6 p-4 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 shadow-lg">
+          <p className="text-xs text-white font-semibold mb-2 drop-shadow">🔐 Demo Credentials:</p>
+          <div className="space-y-1">
+            <p className="text-xs text-white/90"><span className="font-medium">Guard:</span> guard1@security.com</p>
+            <p className="text-xs text-white/90"><span className="font-medium">Supervisor:</span> supervisor@security.com</p>
+            <p className="text-xs text-white/90"><span className="font-medium">Client:</span> client@company.com</p>
+            <p className="text-xs text-white font-medium mt-2">Password: password123</p>
+          </div>
         </div>
       </div>
     </div>

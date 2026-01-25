@@ -1,6 +1,7 @@
 const prisma = require('../config/db');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const QRCode = require('qrcode');
 
 // Generate unique QR code for checkpoint
 const generateUniqueQRCode = (siteName, checkpointNumber) => {
@@ -274,6 +275,83 @@ const deleteSite = async (req, res) => {
   }
 };
 
+// Generate QR code image for a checkpoint
+const generateQRCodeImage = async (req, res) => {
+  try {
+    const { checkpointId } = req.params;
+
+    const checkpoint = await prisma.checkpoint.findUnique({
+      where: { id: checkpointId },
+      include: {
+        site: true
+      }
+    });
+
+    if (!checkpoint) {
+      return res.status(404).json({ error: 'Checkpoint not found' });
+    }
+
+    // Generate QR code as PNG buffer
+    const qrCodeBuffer = await QRCode.toBuffer(checkpoint.qrCode, {
+      errorCorrectionLevel: 'H',
+      type: 'png',
+      width: 300,
+      margin: 2
+    });
+
+    // Set response headers
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Content-Disposition', `inline; filename="${checkpoint.name.replace(/[^a-z0-9]/gi, '_')}_QR.png"`);
+    res.send(qrCodeBuffer);
+  } catch (error) {
+    console.error('Generate QR code error:', error);
+    res.status(500).json({ error: 'Failed to generate QR code' });
+  }
+};
+
+// Download all QR codes for a site as data URL array
+const downloadSiteQRCodes = async (req, res) => {
+  try {
+    const { siteId } = req.params;
+
+    const site = await prisma.site.findUnique({
+      where: { id: siteId },
+      include: {
+        checkpoints: true
+      }
+    });
+
+    if (!site) {
+      return res.status(404).json({ error: 'Site not found' });
+    }
+
+    // Generate QR codes as data URLs
+    const qrCodes = await Promise.all(
+      site.checkpoints.map(async (checkpoint) => {
+        const dataUrl = await QRCode.toDataURL(checkpoint.qrCode, {
+          errorCorrectionLevel: 'H',
+          width: 300,
+          margin: 2
+        });
+        return {
+          id: checkpoint.id,
+          name: checkpoint.name,
+          qrCode: checkpoint.qrCode,
+          qrCodeImage: dataUrl
+        };
+      })
+    );
+
+    res.json({
+      siteName: site.name,
+      checkpoints: qrCodes
+    });
+  } catch (error) {
+    console.error('Download site QR codes error:', error);
+    res.status(500).json({ error: 'Failed to generate QR codes' });
+  }
+};
+
 module.exports = {
   createUser,
   createSite,
@@ -282,5 +360,7 @@ module.exports = {
   updateSite,
   addCheckpoint,
   deleteCheckpoint,
-  deleteSite
+  deleteSite,
+  generateQRCodeImage,
+  downloadSiteQRCodes
 };

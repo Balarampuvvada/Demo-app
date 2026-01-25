@@ -45,7 +45,7 @@ export const authApi = {
 // Patrol APIs
 export const patrolApi = {
   startShift: (data) => api.post('/patrol/start-shift', data),
-  endShift: (shiftId) => api.put(`/patrol/end-shift/${shiftId}`),
+  endShift: (shiftId, data) => api.put(`/patrol/end-shift/${shiftId}`, data),
   logCheckpoint: (data) => api.post('/patrol/log-checkpoint', data),
   getShift: (shiftId) => api.get(`/patrol/shift/${shiftId}`),
   getActiveShift: () => api.get('/patrol/active-shift'),
@@ -81,7 +81,11 @@ export const adminApi = {
   
   // Checkpoint management
   addCheckpoint: (siteId, data) => api.post(`/admin/sites/${siteId}/checkpoints`, data),
-  deleteCheckpoint: (checkpointId) => api.delete(`/admin/checkpoints/${checkpointId}`)
+  deleteCheckpoint: (checkpointId) => api.delete(`/admin/checkpoints/${checkpointId}`),
+  
+  // QR Code generation
+  getCheckpointQRCode: (checkpointId) => `${API_URL}/admin/checkpoints/${checkpointId}/qrcode`,
+  getSiteQRCodes: (siteId) => api.get(`/admin/sites/${siteId}/qrcodes`)
 };
 
 export default api;

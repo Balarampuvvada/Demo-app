@@ -31,7 +31,6 @@ services:
     name: security-patrol-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
-    dockerCommand: --build-arg BUILD_ENV=production
     plan: starter
     healthCheckPath: /health
     envVars:
@@ -53,11 +52,11 @@ services:
     name: security-patrol-frontend
     env: docker
     dockerfilePath: ./frontend/Dockerfile
-    dockerCommand: --build-arg BUILD_ENV=production --build-arg VITE_API_URL=https://security-patrol-backend.onrender.com
+    dockerContext: ./frontend
     plan: starter
-    envVars:
-      - key: BACKEND_URL
-        value: https://security-patrol-backend.onrender.com
+    buildFilter:
+      paths:
+        - frontend/**
 
 databases:
   - name: security-patrol-db

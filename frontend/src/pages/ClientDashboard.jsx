@@ -89,83 +89,107 @@ const ClientDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        <div 
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `url('/images/security-background.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative text-xl text-white drop-shadow-lg">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Same background as login page */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/images/security-background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Header with glass effect */}
+      <div className="relative bg-white/10 backdrop-blur-xl border-b border-white/20 text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Client Dashboard</h1>
-            <p className="text-sm">Welcome, {user?.name}</p>
+            <h1 className="text-2xl font-bold drop-shadow-lg">Client Dashboard</h1>
+            <p className="text-sm text-white/90">Welcome, {user?.name}</p>
           </div>
           <button
             onClick={logout}
-            className="px-4 py-2 bg-blue-700 rounded hover:bg-blue-800"
+            className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 border border-white/30 transition-all shadow-lg"
           >
             Logout
           </button>
         </div>
       </div>
 
-      <div className="container mx-auto p-4">
+      <div className="relative container mx-auto p-4">
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-600 text-sm">Total Patrols</p>
-            <p className="text-3xl font-bold text-blue-600">{shifts.length}</p>
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+            <p className="text-white/80 text-sm">Total Patrols</p>
+            <p className="text-3xl font-bold text-white drop-shadow-lg">{shifts.length}</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-600 text-sm">Completed Patrols</p>
-            <p className="text-3xl font-bold text-green-600">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+            <p className="text-white/80 text-sm">Completed Patrols</p>
+            <p className="text-3xl font-bold text-white drop-shadow-lg">
               {shifts.filter(s => s.status === 'COMPLETED').length}
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-gray-600 text-sm">Total Checkpoints</p>
-            <p className="text-3xl font-bold text-purple-600">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+            <p className="text-white/80 text-sm">Total Checkpoints</p>
+            <p className="text-3xl font-bold text-white drop-shadow-lg">
               {shifts.reduce((sum, s) => sum + (s.patrolLogs?.length || 0), 0)}
             </p>
           </div>
         </div>
 
         {/* Filters and Export */}
-        <div className="bg-white rounded-lg shadow p-4 mb-4">
+        <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-4 mb-4 border border-white/20">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded ${
+                className={`px-4 py-2 rounded-lg transition-all ${
                   filter === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-blue-500/80 backdrop-blur-sm text-white border border-white/30'
+                    : 'bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setFilter('active')}
-                className={`px-4 py-2 rounded ${
+                className={`px-4 py-2 rounded-lg transition-all ${
                   filter === 'active'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-blue-500/80 backdrop-blur-sm text-white border border-white/30'
+                    : 'bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30'
                 }`}
               >
                 Active
               </button>
               <button
                 onClick={() => setFilter('completed')}
-                className={`px-4 py-2 rounded ${
+                className={`px-4 py-2 rounded-lg transition-all ${
                   filter === 'completed'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-blue-500/80 backdrop-blur-sm text-white border border-white/30'
+                    : 'bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30'
                 }`}
               >
                 Completed
@@ -175,7 +199,7 @@ const ClientDashboard = () => {
             <button
               onClick={exportToCSV}
               disabled={shifts.length === 0}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+              className="px-4 py-2 bg-green-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-green-600/80 disabled:opacity-50 border border-white/30 shadow-lg transition-all"
             >
               Download CSV Report
             </button>

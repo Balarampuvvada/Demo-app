@@ -44,13 +44,32 @@ const GuardDashboard = () => {
     }
 
     setLoading(true);
-    try {
-      const response = await patrolApi.startShift({ siteId: selectedSite });
-      setActiveShift(response.data);
-      setMessage({ type: 'success', text: 'Shift started successfully!' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to start shift' });
-    } finally {
+    
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const response = await patrolApi.startShift({ 
+              siteId: selectedSite,
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            });
+            setActiveShift(response.data);
+            setMessage({ type: 'success', text: 'Shift started successfully!' });
+          } catch (err) {
+            setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to start shift' });
+          } finally {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          setMessage({ type: 'error', text: 'Location access denied. Please enable GPS to start shift.' });
+          setLoading(false);
+        }
+      );
+    } else {
+      setMessage({ type: 'error', text: 'Geolocation not supported by your browser' });
       setLoading(false);
     }
   };
@@ -59,13 +78,31 @@ const GuardDashboard = () => {
     if (!activeShift) return;
 
     setLoading(true);
-    try {
-      await patrolApi.endShift(activeShift.id);
-      setActiveShift(null);
-      setMessage({ type: 'success', text: 'Shift ended successfully!' });
-    } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to end shift' });
-    } finally {
+    
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            await patrolApi.endShift(activeShift.id, {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            });
+            setActiveShift(null);
+            setMessage({ type: 'success', text: 'Shift ended successfully!' });
+          } catch (err) {
+            setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to end shift' });
+          } finally {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          setMessage({ type: 'error', text: 'Location access denied. Please enable GPS to end shift.' });
+          setLoading(false);
+        }
+      );
+    } else {
+      setMessage({ type: 'error', text: 'Geolocation not supported by your browser' });
       setLoading(false);
     }
   };
@@ -132,31 +169,45 @@ const GuardDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Same background as login page */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/images/security-background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Header with glass effect */}
+      <div className="relative bg-white/10 backdrop-blur-xl border-b border-white/20 text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Guard Dashboard</h1>
-            <p className="text-sm">Welcome, {user?.name}</p>
+            <h1 className="text-2xl font-bold drop-shadow-lg">Guard Dashboard</h1>
+            <p className="text-sm text-white/90">Welcome, {user?.name}</p>
           </div>
           <button
             onClick={logout}
-            className="px-4 py-2 bg-blue-700 rounded hover:bg-blue-800"
+            className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 border border-white/30 transition-all shadow-lg"
           >
             Logout
           </button>
         </div>
       </div>
 
-      <div className="container mx-auto p-4 space-y-6">
+      <div className="relative container mx-auto p-4 space-y-6">
         {/* Message */}
         {message.text && (
           <div
-            className={`p-4 rounded-lg ${
+            className={`p-4 rounded-lg backdrop-blur-xl border shadow-lg ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-300'
-                : 'bg-red-50 text-red-800 border border-red-300'
+                ? 'bg-green-500/20 text-white border-green-300/50'
+                : 'bg-red-500/20 text-white border-red-300/50'
             }`}
           >
             {message.text}
@@ -165,21 +216,21 @@ const GuardDashboard = () => {
 
         {/* Shift Control */}
         {!activeShift ? (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Start Your Shift</h2>
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+            <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Start Your Shift</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-white/90 mb-2">
                   Select Site
                 </label>
                 <select
                   value={selectedSite}
                   onChange={(e) => setSelectedSite(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                 >
-                  <option value="">Choose a site...</option>
+                  <option value="" className="text-gray-900">Choose a site...</option>
                   {sites.map((site) => (
-                    <option key={site.id} value={site.id}>
+                    <option key={site.id} value={site.id} className="text-gray-900">
                       {site.name}
                     </option>
                   ))}
@@ -188,7 +239,7 @@ const GuardDashboard = () => {
               <button
                 onClick={handleStartShift}
                 disabled={loading || !selectedSite}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="w-full py-3 bg-green-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-green-600/80 disabled:opacity-50 border border-white/30 shadow-lg transition-all"
               >
                 {loading ? 'Starting...' : 'Start Shift'}
               </button>
@@ -197,18 +248,18 @@ const GuardDashboard = () => {
         ) : (
           <>
             {/* Active Shift Card */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-xl font-semibold">Active Shift</h2>
-                  <p className="text-gray-600">{activeShift.site?.name}</p>
+                  <h2 className="text-xl font-semibold text-white drop-shadow">Active Shift</h2>
+                  <p className="text-white/80">{activeShift.site?.name}</p>
                 </div>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                <span className="px-3 py-1 bg-green-500/30 backdrop-blur-sm text-white rounded-full text-sm font-medium border border-green-300/50">
                   Active
                 </span>
               </div>
               
-              <div className="space-y-2 text-sm text-gray-700">
+              <div className="space-y-2 text-sm text-white/90">
                 <p>
                   <span className="font-medium">Started:</span> {formatTime(activeShift.startTime)} - {formatDate(activeShift.startTime)}
                 </p>
@@ -220,7 +271,7 @@ const GuardDashboard = () => {
               <div className="mt-4 space-y-2">
                 <button
                   onClick={() => setShowScanner(!showScanner)}
-                  className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="w-full py-3 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 border border-white/30 shadow-lg transition-all"
                 >
                   {showScanner ? 'Hide Scanner' : 'Scan Checkpoint'}
                 </button>
@@ -228,7 +279,7 @@ const GuardDashboard = () => {
                 <button
                   onClick={handleEndShift}
                   disabled={loading}
-                  className="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                  className="w-full py-3 bg-red-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-red-600/80 disabled:opacity-50 border border-white/30 shadow-lg transition-all"
                 >
                   {loading ? 'Ending...' : 'End Shift'}
                 </button>
@@ -237,8 +288,8 @@ const GuardDashboard = () => {
 
             {/* QR Scanner */}
             {showScanner && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Scan Checkpoint QR Code</h2>
+              <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+                <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Scan Checkpoint QR Code</h2>
                 <QRScanner
                   onScan={handleQRScan}
                   onError={(err) => setMessage({ type: 'error', text: err })}
@@ -248,19 +299,19 @@ const GuardDashboard = () => {
 
             {/* Patrol Logs */}
             {activeShift.patrolLogs && activeShift.patrolLogs.length > 0 && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Today's Patrol Logs</h2>
+              <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+                <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Today's Patrol Logs</h2>
                 <div className="space-y-3">
                   {activeShift.patrolLogs.map((log) => (
                     <div
                       key={log.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20"
                     >
                       <div>
-                        <p className="font-medium">{log.checkpoint?.name}</p>
-                        <p className="text-sm text-gray-600">{formatTime(log.timestamp)}</p>
+                        <p className="font-medium text-white">{log.checkpoint?.name}</p>
+                        <p className="text-sm text-white/70">{formatTime(log.timestamp)}</p>
                       </div>
-                      <span className="text-green-600">✓</span>
+                      <span className="text-green-400">✓</span>
                     </div>
                   ))}
                 </div>

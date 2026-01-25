@@ -9,6 +9,9 @@ const AdminDashboard = () => {
   const [sites, setSites] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedSite, setSelectedSite] = useState(null);
+  const [qrCodes, setQrCodes] = useState([]);
 
   // User form state
   const [userForm, setUserForm] = useState({
@@ -162,32 +165,106 @@ const AdminDashboard = () => {
     showMessage('success', 'QR codes copied to clipboard!');
   };
 
+  const viewQRCodes = async (site) => {
+    setSelectedSite(site);
+    setShowQRModal(true);
+    setLoading(true);
+    
+    try {
+      const response = await adminApi.getSiteQRCodes(site.id);
+      setQrCodes(response.data.checkpoints);
+    } catch (error) {
+      showMessage('error', 'Failed to load QR codes');
+      setShowQRModal(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const downloadQRCode = (checkpoint) => {
+    const link = document.createElement('a');
+    link.href = checkpoint.qrCodeImage;
+    link.download = `${checkpoint.name.replace(/[^a-z0-9]/gi, '_')}_QR.png`;
+    link.click();
+  };
+
+  const downloadAllQRCodes = () => {
+    qrCodes.forEach((checkpoint, index) => {
+      setTimeout(() => {
+        downloadQRCode(checkpoint);
+      }, index * 200); // Small delay between downloads
+    });
+  };
+
+  const printQRCodes = () => {
+    const printWindow = window.open('', '_blank');
+    const qrHtml = qrCodes.map(cp => `
+      <div style="page-break-after: always; padding: 40px; text-align: center;">
+        <h2>${selectedSite.name}</h2>
+        <h3>${cp.name}</h3>
+        <img src="${cp.qrCodeImage}" style="width: 300px; height: 300px; margin: 20px auto;" />
+        <p style="font-family: monospace; font-size: 14px;">${cp.qrCode}</p>
+      </div>
+    `).join('');
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>QR Codes - ${selectedSite.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            @media print {
+              @page { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>${qrHtml}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-blue-600 text-white p-4">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Same background as login page */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('/images/security-background.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50" />
+      
+      {/* Header with glass effect */}
+      <div className="relative bg-white/10 backdrop-blur-xl border-b border-white/20 text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p className="text-sm">Welcome, {user?.name}</p>
+            <h1 className="text-2xl font-bold drop-shadow-lg">Admin Dashboard</h1>
+            <p className="text-sm text-white/90">Welcome, {user?.name}</p>
           </div>
           <button
             onClick={logout}
-            className="px-4 py-2 bg-blue-700 rounded hover:bg-blue-800"
+            className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 border border-white/30 transition-all shadow-lg"
           >
             Logout
           </button>
         </div>
       </div>
 
-      <div className="container mx-auto p-4">
+      <div className="relative container mx-auto p-4">
         {/* Message */}
         {message.text && (
           <div
-            className={`mb-4 p-4 rounded-lg ${
+            className={`mb-4 p-4 rounded-lg backdrop-blur-xl border shadow-lg ${
               message.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-300'
-                : 'bg-red-50 text-red-800 border border-red-300'
+                ? 'bg-green-500/20 text-white border-green-300/50'
+                : 'bg-red-500/20 text-white border-red-300/50'
             }`}
           >
             {message.text}
@@ -195,24 +272,24 @@ const AdminDashboard = () => {
         )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow mb-4">
-          <div className="flex border-b">
+        <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl mb-4 border border-white/20">
+          <div className="flex border-b border-white/20">
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium transition-all ${
                 activeTab === 'users'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-400 text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
               User Management
             </button>
             <button
               onClick={() => setActiveTab('sites')}
-              className={`px-6 py-3 font-medium ${
+              className={`px-6 py-3 font-medium transition-all ${
                 activeTab === 'sites'
-                  ? 'border-b-2 border-blue-600 text-blue-600'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'border-b-2 border-blue-400 text-white bg-white/10'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
               }`}
             >
               Site Management
@@ -224,11 +301,11 @@ const AdminDashboard = () => {
         {activeTab === 'users' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Create User Form */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Create New User</h2>
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+              <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Create New User</h2>
               <form onSubmit={handleCreateUser} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Email
                   </label>
                   <input
@@ -236,13 +313,13 @@ const AdminDashboard = () => {
                     required
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     placeholder="guard@security.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Password
                   </label>
                   <input
@@ -250,13 +327,13 @@ const AdminDashboard = () => {
                     required
                     value={userForm.password}
                     onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     placeholder="Minimum 8 characters"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Full Name
                   </label>
                   <input
@@ -264,30 +341,30 @@ const AdminDashboard = () => {
                     required
                     value={userForm.name}
                     onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     placeholder="John Doe"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Role
                   </label>
                   <select
                     value={userForm.role}
                     onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                   >
-                    <option value="GUARD">Guard</option>
-                    <option value="SUPERVISOR">Supervisor</option>
-                    <option value="CLIENT">Client</option>
+                    <option value="GUARD" className="text-gray-900">Guard</option>
+                    <option value="SUPERVISOR" className="text-gray-900">Supervisor</option>
+                    <option value="CLIENT" className="text-gray-900">Client</option>
                   </select>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full py-3 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 disabled:opacity-50 border border-white/30 shadow-lg transition-all"
                 >
                   {loading ? 'Creating...' : 'Create User'}
                 </button>
@@ -295,28 +372,28 @@ const AdminDashboard = () => {
             </div>
 
             {/* Users List */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">All Users</h2>
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+              <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">All Users</h2>
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {users.map((user) => (
                   <div
                     key={user.id}
-                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                    className="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20"
                   >
                     <div>
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-gray-600">{user.email}</p>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        user.role === 'GUARD' ? 'bg-green-100 text-green-800' :
-                        user.role === 'SUPERVISOR' ? 'bg-blue-100 text-blue-800' :
-                        'bg-purple-100 text-purple-800'
+                      <p className="font-medium text-white">{user.name}</p>
+                      <p className="text-sm text-white/70">{user.email}</p>
+                      <span className={`text-xs px-2 py-1 rounded backdrop-blur-sm ${
+                        user.role === 'GUARD' ? 'bg-green-500/30 text-white border border-green-300/50' :
+                        user.role === 'SUPERVISOR' ? 'bg-blue-500/30 text-white border border-blue-300/50' :
+                        'bg-purple-500/30 text-white border border-purple-300/50'
                       }`}>
                         {user.role}
                       </span>
                     </div>
                     <button
                       onClick={() => handleDeleteUser(user.id)}
-                      className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
+                      className="px-3 py-1 text-white bg-red-500/30 hover:bg-red-500/50 rounded backdrop-blur-sm border border-red-300/50 transition-all"
                     >
                       Delete
                     </button>
@@ -331,8 +408,8 @@ const AdminDashboard = () => {
         {activeTab === 'sites' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Create Site Form */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Create New Site</h2>
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+              <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Create New Site</h2>
               <form onSubmit={handleCreateSite} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -464,8 +541,8 @@ const AdminDashboard = () => {
             </div>
 
             {/* Sites List */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">All Sites</h2>
+            <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
+              <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">All Sites</h2>
               <div className="space-y-4 max-h-[600px] overflow-y-auto">
                 {sites.map((site) => (
                   <div key={site.id} className="p-4 bg-gray-50 rounded-lg">
@@ -487,12 +564,20 @@ const AdminDashboard = () => {
                         <p className="text-sm font-medium">
                           Checkpoints ({site.checkpoints?.length || 0})
                         </p>
-                        <button
-                          onClick={() => copyQRCodes(site)}
-                          className="text-xs text-blue-600 hover:text-blue-700"
-                        >
-                          Copy QR Codes
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => viewQRCodes(site)}
+                            className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          >
+                            View QR Codes
+                          </button>
+                          <button
+                            onClick={() => copyQRCodes(site)}
+                            className="text-xs px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                          >
+                            Copy Text
+                          </button>
+                        </div>
                       </div>
                       {site.checkpoints && site.checkpoints.length > 0 && (
                         <div className="space-y-1">
@@ -512,6 +597,72 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white/10 backdrop-blur-xl rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-white/20">
+            <div className="sticky top-0 bg-white/20 backdrop-blur-xl border-b border-white/20 p-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white drop-shadow">
+                QR Codes - {selectedSite?.name}
+              </h2>
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="text-white hover:text-white/70 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              {loading ? (
+                <div className="text-center py-8">
+                  <p>Loading QR codes...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-3 mb-6">
+                    <button
+                      onClick={downloadAllQRCodes}
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    >
+                      Download All
+                    </button>
+                    <button
+                      onClick={printQRCodes}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Print All
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {qrCodes.map((checkpoint) => (
+                      <div key={checkpoint.id} className="border rounded-lg p-4 text-center">
+                        <h3 className="font-semibold text-lg mb-2">{checkpoint.name}</h3>
+                        <img
+                          src={checkpoint.qrCodeImage}
+                          alt={checkpoint.name}
+                          className="w-64 h-64 mx-auto mb-3"
+                        />
+                        <p className="text-xs text-gray-600 font-mono mb-3 break-all">
+                          {checkpoint.qrCode}
+                        </p>
+                        <button
+                          onClick={() => downloadQRCode(checkpoint)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

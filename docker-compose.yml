@@ -21,9 +21,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-      args:
-        BUILD_ENV: development
+      dockerfile: Dockerfile.dev
     container_name: security-patrol-backend
     environment:
       DATABASE_URL: postgresql://patrol_user:patrol_pass@postgres:5432/security_patrol
@@ -43,10 +41,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        BUILD_ENV: development
-      target: development
+      dockerfile: Dockerfile.dev
     container_name: security-patrol-frontend
     environment:
       VITE_API_URL: http://localhost:5000

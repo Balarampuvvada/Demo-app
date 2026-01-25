@@ -7,7 +7,9 @@ const {
   updateSite,
   addCheckpoint,
   deleteCheckpoint,
-  deleteSite
+  deleteSite,
+  generateQRCodeImage,
+  downloadSiteQRCodes
 } = require('../controllers/admin.controller');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth.middleware');
 
@@ -30,5 +32,9 @@ router.delete('/sites/:siteId', deleteSite);
 // Checkpoint management
 router.post('/sites/:siteId/checkpoints', addCheckpoint);
 router.delete('/checkpoints/:checkpointId', deleteCheckpoint);
+
+// QR Code generation
+router.get('/checkpoints/:checkpointId/qrcode', generateQRCodeImage);
+router.get('/sites/:siteId/qrcodes', downloadSiteQRCodes);
 
 module.exports = router;

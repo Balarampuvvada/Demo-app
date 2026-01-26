@@ -12,7 +12,7 @@ async function createUser(email, password, name, role) {
         email,
         password: hashedPassword,
         name,
-        role // GUARD, SUPERVISOR, or CLIENT
+        role // GUARD or SUPERVISOR
       }
     });
 
@@ -42,7 +42,7 @@ async function createUser(email, password, name, role) {
 
 // if (!email || !password || !name || !role) {
 //   console.log('Usage: node scripts/create-user.js <email> <password> <name> <role>');
-//   console.log('Role must be: GUARD, SUPERVISOR, or CLIENT');
+//   console.log('Role must be: GUARD or SUPERVISOR');
 //   process.exit(1);
 // }
 

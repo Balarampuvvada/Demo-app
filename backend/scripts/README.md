@@ -46,19 +46,12 @@ await createUser(
   'SUPERVISOR'
 );
 
-// Create a client
-await createUser(
-  'acme@company.com',
-  'securePassword123',
-  'ACME Corporation',
-  'CLIENT'
-);
+
 ```
 
 ### Valid Roles
 - `GUARD` - Can start shifts, scan QR codes, log checkpoints
 - `SUPERVISOR` - Can view live patrols, alerts, and reports
-- `CLIENT` - Read-only access to patrol reports
 
 ---
 
@@ -317,7 +310,7 @@ const prisma = new PrismaClient();
 4. **Access Control**
    - Only assign GUARD role to field personnel
    - Limit SUPERVISOR access to management
-   - Use CLIENT role for external stakeholders
+
 
 ---
 
@@ -325,7 +318,7 @@ const prisma = new PrismaClient();
 
 ### View Recent Patrol Logs
 
-Access the Supervisor or Client dashboard to:
+Access the Supervisor dashboard to:
 - See real-time patrol activity
 - Check which checkpoints were visited
 - Verify GPS coordinates

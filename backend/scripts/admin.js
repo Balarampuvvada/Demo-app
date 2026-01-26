@@ -24,10 +24,10 @@ async function createUser() {
   console.log('\nSelect Role:');
   console.log('1. GUARD');
   console.log('2. SUPERVISOR');
-  console.log('3. CLIENT');
-  const roleChoice = await question('Choice (1-3): ');
+
+  const roleChoice = await question('Choice (1-2): ');
   
-  const roles = { '1': 'GUARD', '2': 'SUPERVISOR', '3': 'CLIENT' };
+  const roles = { '1': 'GUARD', '2': 'SUPERVISOR' };
   const role = roles[roleChoice];
   
   if (!role) {

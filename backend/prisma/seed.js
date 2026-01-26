@@ -8,6 +8,7 @@ async function main() {
 
   // Check if database is already seeded
   const existingUsers = await prisma.user.count();
+  const existingSites = await prisma.site.count();
   if (existingUsers > 0) {
     console.log('✅ Database already seeded, skipping...');
     console.log('\n📋 Demo Credentials:');
@@ -15,10 +16,18 @@ async function main() {
     console.log('Guard 1: guard1@security.com');
     console.log('Guard 2: guard2@security.com');
     console.log('Supervisor: supervisor@security.com');
-    console.log('Client: client@company.com');
     console.log('Password: password123');
     console.log('-------------------');
     return;
+  }
+
+  // If sites exist but no users, we need to clear the database first
+  if (existingSites > 0) {
+    console.log('⚠️  Sites already exist but no users. Clearing existing data...');
+    await prisma.patrolLog.deleteMany({});
+    await prisma.shift.deleteMany({});
+    await prisma.checkpoint.deleteMany({});
+    await prisma.site.deleteMany({});
   }
 
   // Create users
@@ -57,22 +66,15 @@ async function main() {
     }
   });
 
-  const client = await prisma.user.upsert({
-    where: { email: 'client@company.com' },
-    update: {},
-    create: {
-      email: 'client@company.com',
-      password: hashedPassword,
-      name: 'ABC Corporation',
-      role: 'CLIENT'
-    }
-  });
+
 
   console.log('✅ Users created');
 
   // Create sites
-  const site1 = await prisma.site.create({
-    data: {
+  const site1 = await prisma.site.upsert({
+    where: { name: 'Downtown Office Complex' },
+    update: {},
+    create: {
       name: 'Downtown Office Complex',
       address: '123 Main Street, Downtown',
       latitude: 40.7128,
@@ -80,8 +82,10 @@ async function main() {
     }
   });
 
-  const site2 = await prisma.site.create({
-    data: {
+  const site2 = await prisma.site.upsert({
+    where: { name: 'Warehouse District A' },
+    update: {},
+    create: {
       name: 'Warehouse District A',
       address: '456 Industrial Ave',
       latitude: 40.7580,
@@ -93,8 +97,10 @@ async function main() {
 
   // Create checkpoints for site1
   const checkpoints1 = await Promise.all([
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE1-CHECKPOINT-001' },
+      update: {},
+      create: {
         siteId: site1.id,
         name: 'Main Entrance',
         qrCode: 'SITE1-CHECKPOINT-001',
@@ -102,8 +108,10 @@ async function main() {
         longitude: -74.0060
       }
     }),
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE1-CHECKPOINT-002' },
+      update: {},
+      create: {
         siteId: site1.id,
         name: 'North Wing Corridor',
         qrCode: 'SITE1-CHECKPOINT-002',
@@ -111,8 +119,10 @@ async function main() {
         longitude: -74.0058
       }
     }),
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE1-CHECKPOINT-003' },
+      update: {},
+      create: {
         siteId: site1.id,
         name: 'Parking Lot',
         qrCode: 'SITE1-CHECKPOINT-003',
@@ -120,8 +130,10 @@ async function main() {
         longitude: -74.0062
       }
     }),
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE1-CHECKPOINT-004' },
+      update: {},
+      create: {
         siteId: site1.id,
         name: 'Emergency Exit',
         qrCode: 'SITE1-CHECKPOINT-004',
@@ -133,8 +145,10 @@ async function main() {
 
   // Create checkpoints for site2
   const checkpoints2 = await Promise.all([
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE2-CHECKPOINT-001' },
+      update: {},
+      create: {
         siteId: site2.id,
         name: 'Warehouse Main Gate',
         qrCode: 'SITE2-CHECKPOINT-001',
@@ -142,8 +156,10 @@ async function main() {
         longitude: -73.9855
       }
     }),
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE2-CHECKPOINT-002' },
+      update: {},
+      create: {
         siteId: site2.id,
         name: 'Loading Dock',
         qrCode: 'SITE2-CHECKPOINT-002',
@@ -151,8 +167,10 @@ async function main() {
         longitude: -73.9853
       }
     }),
-    prisma.checkpoint.create({
-      data: {
+    prisma.checkpoint.upsert({
+      where: { qrCode: 'SITE2-CHECKPOINT-003' },
+      update: {},
+      create: {
         siteId: site2.id,
         name: 'Storage Area',
         qrCode: 'SITE2-CHECKPOINT-003',
@@ -165,8 +183,16 @@ async function main() {
   console.log('✅ Checkpoints created');
 
   // Create a completed shift with patrol logs
-  const pastShift = await prisma.shift.create({
-    data: {
+  const pastShift = await prisma.shift.upsert({
+    where: { 
+      guardId_siteId_startTime: {
+        guardId: guard1.id,
+        siteId: site1.id,
+        startTime: new Date(Date.now() - 3 * 60 * 60 * 1000)
+      }
+    },
+    update: {},
+    create: {
       guardId: guard1.id,
       siteId: site1.id,
       startTime: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
@@ -175,41 +201,49 @@ async function main() {
     }
   });
 
-  // Create patrol logs for the completed shift
-  await Promise.all([
-    prisma.patrolLog.create({
-      data: {
-        shiftId: pastShift.id,
-        guardId: guard1.id,
-        checkpointId: checkpoints1[0].id,
-        timestamp: new Date(Date.now() - 2.5 * 60 * 60 * 1000),
-        latitude: 40.7128,
-        longitude: -74.0060
-      }
-    }),
-    prisma.patrolLog.create({
-      data: {
-        shiftId: pastShift.id,
-        guardId: guard1.id,
-        checkpointId: checkpoints1[1].id,
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        latitude: 40.7130,
-        longitude: -74.0058
-      }
-    }),
-    prisma.patrolLog.create({
-      data: {
-        shiftId: pastShift.id,
-        guardId: guard1.id,
-        checkpointId: checkpoints1[2].id,
-        timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
-        latitude: 40.7126,
-        longitude: -74.0062
-      }
-    })
-  ]);
+  // Check if patrol logs already exist for this shift
+  const existingLogs = await prisma.patrolLog.count({
+    where: { shiftId: pastShift.id }
+  });
 
-  console.log('✅ Sample patrol logs created');
+  if (existingLogs === 0) {
+    // Create patrol logs for the completed shift
+    await Promise.all([
+      prisma.patrolLog.create({
+        data: {
+          shiftId: pastShift.id,
+          guardId: guard1.id,
+          checkpointId: checkpoints1[0].id,
+          timestamp: new Date(Date.now() - 2.5 * 60 * 60 * 1000),
+          latitude: 40.7128,
+          longitude: -74.0060
+        }
+      }),
+      prisma.patrolLog.create({
+        data: {
+          shiftId: pastShift.id,
+          guardId: guard1.id,
+          checkpointId: checkpoints1[1].id,
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          latitude: 40.7130,
+          longitude: -74.0058
+        }
+      }),
+      prisma.patrolLog.create({
+        data: {
+          shiftId: pastShift.id,
+          guardId: guard1.id,
+          checkpointId: checkpoints1[2].id,
+          timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
+          latitude: 40.7126,
+          longitude: -74.0062
+        }
+      })
+    ]);
+    console.log('✅ Sample patrol logs created');
+  } else {
+    console.log('✅ Sample patrol logs already exist');
+  }
 
   console.log('\n🎉 Database seeded successfully!');
   console.log('\n📋 Demo Credentials:');
@@ -223,9 +257,7 @@ async function main() {
   console.log('\nSupervisor:');
   console.log('  Email: supervisor@security.com');
   console.log('  Password: password123');
-  console.log('\nClient:');
-  console.log('  Email: client@company.com');
-  console.log('  Password: password123');
+
   console.log('-------------------');
 }
 

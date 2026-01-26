@@ -1,16 +1,26 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 
 const QRScanner = ({ onScan, onError }) => {
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef(null);
   const html5QrCodeRef = useRef(null);
+  const containerId = useRef(`qr-reader-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   const startScanning = async () => {
     try {
       setScanning(true);
       
-      html5QrCodeRef.current = new Html5Qrcode('qr-reader');
+      // Clean up any existing scanner
+      if (html5QrCodeRef.current) {
+        try {
+          await html5QrCodeRef.current.stop();
+        } catch (e) {
+          // Ignore errors during cleanup
+        }
+      }
+      
+      html5QrCodeRef.current = new Html5Qrcode(containerId.current);
       
       await html5QrCodeRef.current.start(
         { facingMode: 'environment' },
@@ -40,6 +50,8 @@ const QRScanner = ({ onScan, onError }) => {
         html5QrCodeRef.current.clear();
       } catch (err) {
         console.error('Error stopping scanner:', err);
+      } finally {
+        html5QrCodeRef.current = null;
       }
     }
     setScanning(false);
@@ -48,15 +60,23 @@ const QRScanner = ({ onScan, onError }) => {
   useEffect(() => {
     return () => {
       if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().catch(console.error);
+        html5QrCodeRef.current.stop().catch(() => {});
+        html5QrCodeRef.current = null;
       }
     };
   }, []);
 
+  // Stop scanning when component unmounts or when scanning is turned off
+  useEffect(() => {
+    if (!scanning && html5QrCodeRef.current) {
+      stopScanning();
+    }
+  }, [scanning]);
+
   return (
     <div className="space-y-4">
       <div
-        id="qr-reader"
+        id={containerId.current}
         className={`${scanning ? 'block' : 'hidden'} mx-auto max-w-md`}
       />
       
@@ -81,4 +101,4 @@ const QRScanner = ({ onScan, onError }) => {
   );
 };
 
-export default QRScanner;
+export default memo(QRScanner);

@@ -23,8 +23,9 @@ const Login = () => {
         navigate('/guard');
       } else if (user.role === 'SUPERVISOR') {
         navigate('/supervisor');
-      } else if (user.role === 'CLIENT') {
-        navigate('/client');
+      } else {
+        // Invalid role - redirect to login
+        navigate('/login');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed. Please try again.');
@@ -39,7 +40,7 @@ const Login = () => {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/images/security-background.png')`,
+          backgroundImage: `url('/images/security-background.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -136,7 +137,6 @@ const Login = () => {
           <div className="space-y-1">
             <p className="text-xs text-white/90"><span className="font-medium">Guard:</span> guard1@security.com</p>
             <p className="text-xs text-white/90"><span className="font-medium">Supervisor:</span> supervisor@security.com</p>
-            <p className="text-xs text-white/90"><span className="font-medium">Client:</span> client@company.com</p>
             <p className="text-xs text-white font-medium mt-2">Password: password123</p>
           </div>
         </div>

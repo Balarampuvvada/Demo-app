@@ -4,7 +4,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import GuardDashboard from './pages/GuardDashboard';
 import SupervisorDashboard from './pages/SupervisorDashboard';
-import ClientDashboard from './pages/ClientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
 const HomePage = () => {
@@ -19,8 +18,9 @@ const HomePage = () => {
     return <Navigate to="/guard" replace />;
   } else if (user.role === 'SUPERVISOR') {
     return <Navigate to="/supervisor" replace />;
-  } else if (user.role === 'CLIENT') {
-    return <Navigate to="/client" replace />;
+  } else {
+    // Invalid role - redirect to login
+    return <Navigate to="/login" replace />;
   }
 
   return <Navigate to="/login" replace />;
@@ -61,14 +61,7 @@ function App() {
             }
           />
           
-          <Route
-            path="/client"
-            element={
-              <ProtectedRoute allowedRoles={['CLIENT']}>
-                <ClientDashboard />
-              </ProtectedRoute>
-            }
-          />
+
           
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

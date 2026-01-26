@@ -231,7 +231,7 @@ const AdminDashboard = () => {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/images/security-background.png')`,
+          backgroundImage: `url('/images/security-background.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -357,7 +357,6 @@ const AdminDashboard = () => {
                   >
                     <option value="GUARD" className="text-gray-900">Guard</option>
                     <option value="SUPERVISOR" className="text-gray-900">Supervisor</option>
-                    <option value="CLIENT" className="text-gray-900">Client</option>
                   </select>
                 </div>
 
@@ -412,7 +411,7 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">Create New Site</h2>
               <form onSubmit={handleCreateSite} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Site Name *
                   </label>
                   <input
@@ -420,27 +419,27 @@ const AdminDashboard = () => {
                     required
                     value={siteForm.name}
                     onChange={(e) => setSiteForm({ ...siteForm, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     placeholder="Shopping Mall Alpha"
                   />
                 </div>
-
+              
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-white/90 mb-1">
                     Address
                   </label>
                   <input
                     type="text"
                     value={siteForm.address}
                     onChange={(e) => setSiteForm({ ...siteForm, address: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     placeholder="123 Commerce Street"
                   />
                 </div>
-
+              
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-white/90 mb-1">
                       Latitude
                     </label>
                     <input
@@ -448,12 +447,12 @@ const AdminDashboard = () => {
                       step="any"
                       value={siteForm.latitude}
                       onChange={(e) => setSiteForm({ ...siteForm, latitude: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                       placeholder="40.7589"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-white/90 mb-1">
                       Longitude
                     </label>
                     <input
@@ -461,34 +460,34 @@ const AdminDashboard = () => {
                       step="any"
                       value={siteForm.longitude}
                       onChange={(e) => setSiteForm({ ...siteForm, longitude: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                       placeholder="-73.9851"
                     />
                   </div>
                 </div>
-
-                <div className="border-t pt-4">
+              
+                <div className="border-t border-white/20 pt-4">
                   <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium">Checkpoints *</h3>
+                    <h3 className="font-medium text-white">Checkpoints *</h3>
                     <button
                       type="button"
                       onClick={addCheckpointField}
-                      className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                      className="px-3 py-1 text-sm bg-green-500/80 backdrop-blur-sm text-white rounded hover:bg-green-600/80 border border-white/30 transition-all"
                     >
                       + Add Checkpoint
                     </button>
                   </div>
-
+              
                   <div className="space-y-3 max-h-[300px] overflow-y-auto">
                     {siteForm.checkpoints.map((cp, index) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg space-y-2">
+                      <div key={index} className="p-3 bg-white/10 backdrop-blur-sm rounded-lg space-y-2 border border-white/20">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">Checkpoint {index + 1}</span>
+                          <span className="text-sm font-medium text-white">Checkpoint {index + 1}</span>
                           {siteForm.checkpoints.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeCheckpointField(index)}
-                              className="text-red-600 text-sm hover:text-red-700"
+                              className="text-red-300 text-sm hover:text-red-200"
                             >
                               Remove
                             </button>
@@ -500,7 +499,7 @@ const AdminDashboard = () => {
                           placeholder="Checkpoint Name"
                           value={cp.name}
                           onChange={(e) => updateCheckpointField(index, 'name', e.target.value)}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                          className="w-full px-2 py-1 text-sm bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded"
                         />
                         <div className="grid grid-cols-2 gap-2">
                           <input
@@ -510,30 +509,30 @@ const AdminDashboard = () => {
                             placeholder="Lat"
                             value={cp.latitude}
                             onChange={(e) => updateCheckpointField(index, 'latitude', e.target.value)}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            className="w-full px-2 py-1 text-sm bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded"
                           />
                           <input
                             type="number"
                             step="any"
                             required
                             placeholder="Lng"
-                            value={cp.longitude}
+                            value="{cp.longitude}"
                             onChange={(e) => updateCheckpointField(index, 'longitude', e.target.value)}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                            className="w-full px-2 py-1 text-sm bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-white/70 rounded"
                           />
                         </div>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-white/60">
                           QR code will be auto-generated
                         </p>
                       </div>
                     ))}
                   </div>
                 </div>
-
+              
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="w-full py-3 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 disabled:opacity-50 border border-white/30 shadow-lg transition-all"
                 >
                   {loading ? 'Creating...' : 'Create Site & Generate QR Codes'}
                 </button>
@@ -545,35 +544,35 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-semibold mb-4 text-white drop-shadow">All Sites</h2>
               <div className="space-y-4 max-h-[600px] overflow-y-auto">
                 {sites.map((site) => (
-                  <div key={site.id} className="p-4 bg-gray-50 rounded-lg">
+                  <div key={site.id} className="p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-semibold">{site.name}</h3>
-                        <p className="text-sm text-gray-600">{site.address || 'No address'}</p>
+                        <h3 className="font-semibold text-white">{site.name}</h3>
+                        <p className="text-sm text-white/70">{site.address || 'No address'}</p>
                       </div>
                       <button
                         onClick={() => handleDeleteSite(site.id)}
-                        className="px-3 py-1 text-red-600 hover:bg-red-50 rounded text-sm"
+                        className="px-3 py-1 text-white bg-red-500/30 hover:bg-red-500/50 rounded text-sm backdrop-blur-sm border border-red-300/50 transition-all"
                       >
                         Delete
                       </button>
                     </div>
                     
-                    <div className="mt-3 pt-3 border-t">
+                    <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="flex justify-between items-center mb-2">
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-medium text-white">
                           Checkpoints ({site.checkpoints?.length || 0})
                         </p>
                         <div className="flex gap-2">
                           <button
                             onClick={() => viewQRCodes(site)}
-                            className="text-xs px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="text-xs px-3 py-1 bg-blue-500/80 backdrop-blur-sm text-white rounded hover:bg-blue-600/80 border border-white/30 transition-all"
                           >
                             View QR Codes
                           </button>
                           <button
                             onClick={() => copyQRCodes(site)}
-                            className="text-xs px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                            className="text-xs px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded hover:bg-white/30 border border-white/30 transition-all"
                           >
                             Copy Text
                           </button>
@@ -582,9 +581,9 @@ const AdminDashboard = () => {
                       {site.checkpoints && site.checkpoints.length > 0 && (
                         <div className="space-y-1">
                           {site.checkpoints.map((cp) => (
-                            <div key={cp.id} className="text-xs bg-white p-2 rounded">
-                              <p className="font-medium">{cp.name}</p>
-                              <p className="text-gray-600 font-mono">{cp.qrCode}</p>
+                            <div key={cp.id} className="text-xs bg-white/10 backdrop-blur-sm p-2 rounded border border-white/20">
+                              <p className="font-medium text-white">{cp.name}</p>
+                              <p className="text-white/80 font-mono">{cp.qrCode}</p>
                             </div>
                           ))}
                         </div>
@@ -617,20 +616,20 @@ const AdminDashboard = () => {
             <div className="p-6">
               {loading ? (
                 <div className="text-center py-8">
-                  <p>Loading QR codes...</p>
+                  <p className="text-white">Loading QR codes...</p>
                 </div>
               ) : (
                 <>
                   <div className="flex gap-3 mb-6">
                     <button
                       onClick={downloadAllQRCodes}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="px-4 py-2 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 border border-white/30 shadow-lg transition-all"
                     >
                       Download All
                     </button>
                     <button
                       onClick={printQRCodes}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      className="px-4 py-2 bg-green-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-green-600/80 border border-white/30 shadow-lg transition-all"
                     >
                       Print All
                     </button>
@@ -638,19 +637,19 @@ const AdminDashboard = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {qrCodes.map((checkpoint) => (
-                      <div key={checkpoint.id} className="border rounded-lg p-4 text-center">
-                        <h3 className="font-semibold text-lg mb-2">{checkpoint.name}</h3>
+                      <div key={checkpoint.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg p-4 text-center">
+                        <h3 className="font-semibold text-lg mb-2 text-white drop-shadow">{checkpoint.name}</h3>
                         <img
                           src={checkpoint.qrCodeImage}
                           alt={checkpoint.name}
-                          className="w-64 h-64 mx-auto mb-3"
+                          className="w-64 h-64 mx-auto mb-3 rounded-lg"
                         />
-                        <p className="text-xs text-gray-600 font-mono mb-3 break-all">
+                        <p className="text-xs text-white/70 font-mono mb-3 break-all">
                           {checkpoint.qrCode}
                         </p>
                         <button
                           onClick={() => downloadQRCode(checkpoint)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                          className="px-4 py-2 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 text-sm border border-white/30 shadow-lg transition-all"
                         >
                           Download
                         </button>

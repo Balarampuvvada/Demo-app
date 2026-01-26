@@ -71,7 +71,7 @@ const SupervisorDashboard = () => {
         <div 
           className="absolute inset-0"
           style={{
-            backgroundImage: `url('/images/security-background.png')`,
+            backgroundImage: `url('/images/security-background.jpg')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
@@ -89,7 +89,7 @@ const SupervisorDashboard = () => {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/images/security-background.png')`,
+          backgroundImage: `url('/images/security-background.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -205,40 +205,40 @@ const SupervisorDashboard = () => {
           {activeTab === 'live' && (
             <>
               {livePatrols.length === 0 ? (
-                <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-8 text-center text-white/70 border border-white/20">
                   No active patrols at the moment
                 </div>
               ) : (
                 livePatrols.map((patrol) => (
-                  <div key={patrol.id} className="bg-white rounded-lg shadow p-6">
+                  <div key={patrol.id} className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-lg font-semibold">{patrol.guard.name}</h3>
-                        <p className="text-gray-600">{patrol.site.name}</p>
+                        <h3 className="text-lg font-semibold text-white drop-shadow">{patrol.guard.name}</h3>
+                        <p className="text-white/80">{patrol.site.name}</p>
                       </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-green-500/30 text-white rounded-full text-sm font-medium backdrop-blur-sm border border-green-300/50">
                         Active
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">Started</p>
-                        <p className="font-medium">
+                        <p className="text-white/70">Started</p>
+                        <p className="font-medium text-white">
                           {formatTime(patrol.startTime)} - {formatDate(patrol.startTime)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Duration</p>
-                        <p className="font-medium">{getTimeDifference(patrol.startTime)}</p>
+                        <p className="text-white/70">Duration</p>
+                        <p className="font-medium text-white">{getTimeDifference(patrol.startTime)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Checkpoints Logged</p>
-                        <p className="font-medium">{patrol.patrolLogs?.length || 0}</p>
+                        <p className="text-white/70">Checkpoints Logged</p>
+                        <p className="font-medium text-white">{patrol.patrolLogs?.length || 0}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Last Activity</p>
-                        <p className="font-medium">
+                        <p className="text-white/70">Last Activity</p>
+                        <p className="font-medium text-white">
                           {patrol.patrolLogs?.[0]
                             ? getTimeDifference(patrol.patrolLogs[0].timestamp)
                             : 'No activity'}
@@ -247,8 +247,8 @@ const SupervisorDashboard = () => {
                     </div>
 
                     {patrol.patrolLogs && patrol.patrolLogs.length > 0 && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium text-gray-700 mb-2">
+                      <div className="mt-4 pt-4 border-t border-white/20">
+                        <p className="text-sm font-medium text-white mb-2">
                           Recent Checkpoints
                         </p>
                         <div className="space-y-2">
@@ -257,8 +257,8 @@ const SupervisorDashboard = () => {
                               key={log.id}
                               className="flex justify-between items-center text-sm"
                             >
-                              <span className="text-gray-700">{log.checkpoint.name}</span>
-                              <span className="text-gray-500">{formatTime(log.timestamp)}</span>
+                              <span className="text-white/90">{log.checkpoint.name}</span>
+                              <span className="text-white/60">{formatTime(log.timestamp)}</span>
                             </div>
                           ))}
                         </div>
@@ -274,43 +274,43 @@ const SupervisorDashboard = () => {
           {activeTab === 'alerts' && (
             <>
               {alerts.length === 0 ? (
-                <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-8 text-center text-white/70 border border-white/20">
                   No alerts at the moment
                 </div>
               ) : (
                 alerts.map((alert, index) => (
                   <div
                     key={index}
-                    className={`bg-white rounded-lg shadow p-6 border-l-4 ${
-                      alert.severity === 'HIGH' ? 'border-red-500' : 'border-yellow-500'
-                    }`}
+                    className={`bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border-l-4 ${
+                      alert.severity === 'HIGH' ? 'border-red-400' : 'border-yellow-400'
+                    } border border-white/20`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                      <h3 className="text-lg font-semibold text-white drop-shadow">
                         {alert.alertType === 'MISSED_CHECKPOINTS'
                           ? 'Missed Checkpoints'
                           : 'Inactive Guard'}
                       </h3>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        className={`px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
                           alert.severity === 'HIGH'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            ? 'bg-red-500/30 text-white border border-red-300/50'
+                            : 'bg-yellow-500/30 text-white border border-yellow-300/50'
                         }`}
                       >
                         {alert.severity}
                       </span>
                     </div>
 
-                    <p className="text-gray-700 mb-2">
+                    <p className="text-white mb-2">
                       Guard: <span className="font-medium">{alert.guard.name}</span>
                     </p>
-                    <p className="text-gray-700 mb-2">
+                    <p className="text-white mb-2">
                       Site: <span className="font-medium">{alert.site.name}</span>
                     </p>
-                    <p className="text-gray-700">
+                    <p className="text-white">
                       Missed Checkpoints:{' '}
-                      <span className="font-medium text-red-600">
+                      <span className="font-medium text-red-300">
                         {alert.missedCheckpoints} of {alert.totalCheckpoints}
                       </span>
                     </p>
@@ -324,35 +324,35 @@ const SupervisorDashboard = () => {
           {activeTab === 'guards' && (
             <>
               {guardsOnDuty.length === 0 ? (
-                <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+                <div className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-8 text-center text-white/70 border border-white/20">
                   No guards on duty at the moment
                 </div>
               ) : (
                 guardsOnDuty.map((guard) => (
-                  <div key={guard.id} className="bg-white rounded-lg shadow p-6">
+                  <div key={guard.id} className="bg-white/10 backdrop-blur-xl rounded-lg shadow-2xl p-6 border border-white/20">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-semibold">{guard.name}</h3>
-                        <p className="text-gray-600">{guard.email}</p>
+                        <h3 className="text-lg font-semibold text-white drop-shadow">{guard.name}</h3>
+                        <p className="text-white/80">{guard.email}</p>
                       </div>
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-green-500/30 text-white rounded-full text-sm font-medium backdrop-blur-sm border border-green-300/50">
                         On Duty
                       </span>
                     </div>
 
                     {guard.shifts && guard.shifts.length > 0 && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium text-gray-700 mb-2">
+                      <div className="mt-4 pt-4 border-t border-white/20">
+                        <p className="text-sm font-medium text-white mb-2">
                           Current Assignment
                         </p>
-                        <p className="text-gray-700">
+                        <p className="text-white">
                           Site: <span className="font-medium">{guard.shifts[0].site.name}</span>
                         </p>
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-white/80 text-sm">
                           Started: {formatTime(guard.shifts[0].startTime)}
                         </p>
                         {guard.shifts[0].patrolLogs?.[0] && (
-                          <p className="text-gray-600 text-sm">
+                          <p className="text-white/80 text-sm">
                             Last checkpoint: {getTimeDifference(guard.shifts[0].patrolLogs[0].timestamp)}
                           </p>
                         )}
@@ -369,7 +369,7 @@ const SupervisorDashboard = () => {
         <div className="mt-6 flex justify-center">
           <button
             onClick={loadDashboardData}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-2 bg-blue-500/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600/80 border border-white/30 shadow-lg transition-all"
           >
             Refresh Data
           </button>

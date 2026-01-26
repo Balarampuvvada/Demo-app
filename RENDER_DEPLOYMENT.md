@@ -184,7 +184,6 @@ After deployment, seed demo data:
 This creates demo users:
 - supervisor@security.com / password123
 - guard1@security.com / password123
-- client@company.com / password123
 
 ---
 

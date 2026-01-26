@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
-    if (!['GUARD', 'SUPERVISOR', 'CLIENT'].includes(role)) {
+    if (!['GUARD', 'SUPERVISOR'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
     }
 

@@ -16,11 +16,6 @@ A modern web-based patrol tracking system to replace paper logbooks with digital
 - **Guards Monitoring**: Track which guards are on duty
 - **Patrol Timeline**: View detailed patrol history with timestamps
 
-### Client Features
-- **Read-Only Access**: View completed patrols and security reports
-- **Export Reports**: Download patrol data as CSV
-- **Checkpoint Details**: See all checkpoints with GPS coordinates
-
 ## 🧰 Technology Stack
 
 - **Frontend**: React 18 + Vite + Tailwind CSS
@@ -88,9 +83,7 @@ Open your browser and go to: **http://localhost:3000**
 - Email: `supervisor@security.com`
 - Password: `password123`
 
-### Client Account
-- Email: `client@company.com`
-- Password: `password123`
+
 
 ## 📁 Project Structure
 
@@ -141,8 +134,7 @@ security-patrol-mvp/
         └── pages/
             ├── Login.jsx
             ├── GuardDashboard.jsx
-            ├── SupervisorDashboard.jsx
-            └── ClientDashboard.jsx
+            └── SupervisorDashboard.jsx
 ```
 
 ## 🔑 API Endpoints
@@ -169,7 +161,7 @@ security-patrol-mvp/
 ## 🗄️ Database Models
 
 ### User
-- Roles: GUARD, SUPERVISOR, CLIENT
+- Roles: GUARD, SUPERVISOR
 - Email-based authentication with bcrypt password hashing
 
 ### Site
@@ -253,10 +245,6 @@ The application is mobile-first and works on:
 3. Check alerts for missed checkpoints
 4. Monitor guards on duty
 
-### Test Client Flow
-1. Login as client@company.com
-2. View completed patrols
-3. Export CSV report
 
 ## 🐳 Docker Commands
 

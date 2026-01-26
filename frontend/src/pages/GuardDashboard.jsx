@@ -6,6 +6,7 @@ import QRScanner from '../components/QRScanner';
 const GuardDashboard = () => {
   const { user, logout } = useAuth();
   const [activeShift, setActiveShift] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
   const [sites, setSites] = useState([]);
   const [selectedSite, setSelectedSite] = useState('');
   const [showScanner, setShowScanner] = useState(false);
@@ -32,8 +33,8 @@ const GuardDashboard = () => {
       const response = await patrolApi.getActiveShift();
       setActiveShift(response.data);
     } catch (err) {
-      // No active shift
-      console.log('No active shift');
+      // No active shift - could be because shift was ended
+      setActiveShift(null);
     }
   };
 
@@ -112,7 +113,13 @@ const GuardDashboard = () => {
       setMessage({ type: 'error', text: 'No active shift' });
       return;
     }
-
+    
+    // Prevent multiple scans in quick succession
+    if (isScanning) {
+      return;
+    }
+    
+    setIsScanning(true);
     setLoading(true);
     try {
       // Get current location
@@ -134,22 +141,27 @@ const GuardDashboard = () => {
               await loadActiveShift();
             } catch (err) {
               setMessage({ type: 'error', text: err.response?.data?.error || 'Failed to log checkpoint' });
-            } finally {
               setLoading(false);
+              setIsScanning(false);
+              // Reload active shift to ensure we have current state
+              await loadActiveShift();
             }
           },
           (error) => {
             setMessage({ type: 'error', text: 'Location access denied' });
             setLoading(false);
+            setIsScanning(false);
           }
         );
       } else {
         setMessage({ type: 'error', text: 'Geolocation not supported' });
         setLoading(false);
+        setIsScanning(false);
       }
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to process QR code' });
       setLoading(false);
+      setIsScanning(false);
     }
   };
 
@@ -174,7 +186,7 @@ const GuardDashboard = () => {
       <div 
         className="absolute inset-0"
         style={{
-          backgroundImage: `url('/images/security-background.png')`,
+          backgroundImage: `url('/images/security-background.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

@@ -31,6 +31,7 @@ services:
     name: security-patrol-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     plan: starter
     healthCheckPath: /health
     envVars:
@@ -45,7 +46,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CORS_ORIGIN
-        value: https://security-patrol-frontend.onrender.com
+        value: https://security-patrol-frontend-18tv.onrender.com
 
   # Frontend
   - type: web
@@ -54,9 +55,11 @@ services:
     dockerfilePath: ./frontend/Dockerfile
     dockerContext: ./frontend
     plan: starter
-    buildFilter:
-      paths:
-        - frontend/**
+    envVars:
+      - key: VITE_API_URL
+        value: https://security-patrol-backend-gvqc.onrender.com
+      - key: BACKEND_URL
+        value: https://security-patrol-backend-gvqc.onrender.com
 
 databases:
   - name: security-patrol-db

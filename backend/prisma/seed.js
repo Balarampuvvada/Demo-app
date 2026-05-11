@@ -57,18 +57,18 @@ async function main() {
 
 
 
-  console.log('✅ Users created');
-
-  // Create sites
   const site1 = await prisma.site.upsert({
-    where: { name: 'Downtown Office Complex' },
-    update: {},
-    create: {
-      name: 'Downtown Office Complex',
-      address: '123 Main Street, Downtown',
-      latitude: 40.7128,
-      longitude: -74.0060
-    }
+  where: {
+  id: 1
+  },
+  update: {},
+  create: {
+  id: 1,
+  name: 'Downtown Office Complex',
+  address: '123 Main Street, Downtown',
+  latitude: 40.7128,
+  longitude: -74.0060
+  }
   });
 
   const site2 = await prisma.site.upsert({

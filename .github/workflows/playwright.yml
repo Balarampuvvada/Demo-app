@@ -1,0 +1,75 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main, dev ]       # runs on every push to main or dev
+  pull_request:
+    branches: [ main ]            # runs on every PR to main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # 3. Install frontend deps
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # 4. Install Playwright browsers (cached for speed)
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      # 5. Install backend deps (adjust if Python)
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci               # or: pip install -r requirements.txt
+
+      # 6. Start backend in background
+      - name: Start backend server
+        working-directory: backend
+        run: npm start &          # or: python app.py &
+        env:
+          PORT: 5000
+          NODE_ENV: test
+
+      # 7. Start frontend in background
+      - name: Start frontend
+        working-directory: frontend
+        run: npm start &
+        env:
+          PORT: 3000
+
+      # 8. Wait until app is ready
+      - name: Wait for servers to be ready
+        run: npx wait-on http://localhost:3000 http://localhost:5000 --timeout 60000
+
+      # 9. Run Playwright tests
+      - name: Run Playwright tests
+        working-directory: frontend
+        run: npx playwright test
+        env:
+          BASE_URL: http://localhost:3000
+
+      # 10. Upload test report on failure
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7

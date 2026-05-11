@@ -6,23 +6,12 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // Check if database is already seeded
+  // Check if database has existing demo data
   const existingUsers = await prisma.user.count();
   const existingSites = await prisma.site.count();
-  if (existingUsers > 0) {
-    console.log('✅ Database already seeded, skipping...');
-    console.log('\n📋 Demo Credentials:');
-    console.log('-------------------');
-    console.log('Guard 1: guard1@security.com');
-    console.log('Guard 2: guard2@security.com');
-    console.log('Supervisor: supervisor@security.com');
-    console.log('Password: password123');
-    console.log('-------------------');
-    return;
-  }
 
   // If sites exist but no users, we need to clear the database first
-  if (existingSites > 0) {
+  if (existingSites > 0 && existingUsers === 0) {
     console.log('⚠️  Sites already exist but no users. Clearing existing data...');
     await prisma.patrolLog.deleteMany({});
     await prisma.shift.deleteMany({});
@@ -35,7 +24,7 @@ async function main() {
 
   const guard1 = await prisma.user.upsert({
     where: { email: 'guard1@security.com' },
-    update: {},
+    update: { password: hashedPassword, name: 'John Smith', role: 'GUARD' },
     create: {
       email: 'guard1@security.com',
       password: hashedPassword,
@@ -46,7 +35,7 @@ async function main() {
 
   const guard2 = await prisma.user.upsert({
     where: { email: 'guard2@security.com' },
-    update: {},
+    update: { password: hashedPassword, name: 'Sarah Johnson', role: 'GUARD' },
     create: {
       email: 'guard2@security.com',
       password: hashedPassword,
@@ -57,7 +46,7 @@ async function main() {
 
   const supervisor = await prisma.user.upsert({
     where: { email: 'supervisor@security.com' },
-    update: {},
+    update: { password: hashedPassword, name: 'Mike Wilson', role: 'SUPERVISOR' },
     create: {
       email: 'supervisor@security.com',
       password: hashedPassword,
@@ -182,24 +171,26 @@ async function main() {
 
   console.log('✅ Checkpoints created');
 
-  // Create a completed shift with patrol logs
-  const pastShift = await prisma.shift.upsert({
-    where: { 
-      guardId_siteId_startTime: {
-        guardId: guard1.id,
-        siteId: site1.id,
-        startTime: new Date(Date.now() - 3 * 60 * 60 * 1000)
-      }
-    },
-    update: {},
-    create: {
+  // Create one sample completed shift if the demo guard/site does not have one yet.
+  let pastShift = await prisma.shift.findFirst({
+    where: {
       guardId: guard1.id,
       siteId: site1.id,
-      startTime: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-      endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
       status: 'COMPLETED'
     }
   });
+
+  if (!pastShift) {
+    pastShift = await prisma.shift.create({
+      data: {
+        guardId: guard1.id,
+        siteId: site1.id,
+        startTime: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+        endTime: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+        status: 'COMPLETED'
+      }
+    });
+  }
 
   // Check if patrol logs already exist for this shift
   const existingLogs = await prisma.patrolLog.count({

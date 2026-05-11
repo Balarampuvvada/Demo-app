@@ -70,6 +70,9 @@ model Shift {
   status         String    @default("ACTIVE") // ACTIVE, COMPLETED
   startLatitude  Float?
   startLongitude Float?
+  currentLatitude  Float?
+  currentLongitude Float?
+  lastLocationAt   DateTime?
   endLatitude    Float?
   endLongitude   Float?
   createdAt      DateTime  @default(now())

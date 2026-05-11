@@ -19,6 +19,47 @@ const GuardDashboard = () => {
     loadSites();
   }, []);
 
+  useEffect(() => {
+    if (!activeShift || !navigator.geolocation) {
+      return undefined;
+    }
+
+    const sendLiveLocation = (position) => {
+      patrolApi.updateLiveLocation({
+        shiftId: activeShift.id,
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      }).catch((err) => {
+        console.error('Failed to update live location:', err);
+      });
+    };
+
+    navigator.geolocation.getCurrentPosition(sendLiveLocation, () => {}, {
+      enableHighAccuracy: true,
+      maximumAge: 15000,
+      timeout: 10000
+    });
+
+    const watchId = navigator.geolocation.watchPosition(sendLiveLocation, () => {}, {
+      enableHighAccuracy: true,
+      maximumAge: 15000,
+      timeout: 10000
+    });
+
+    const intervalId = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(sendLiveLocation, () => {}, {
+        enableHighAccuracy: true,
+        maximumAge: 15000,
+        timeout: 10000
+      });
+    }, 30000);
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+      clearInterval(intervalId);
+    };
+  }, [activeShift?.id]);
+
   const loadSites = async () => {
     try {
       const response = await siteApi.getAllSites();

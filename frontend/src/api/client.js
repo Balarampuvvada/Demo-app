@@ -46,6 +46,7 @@ export const authApi = {
 export const patrolApi = {
   startShift: (data) => api.post('/patrol/start-shift', data),
   endShift: (shiftId, data) => api.put(`/patrol/end-shift/${shiftId}`, data),
+  updateLiveLocation: (data) => api.put('/patrol/live-location', data),
   logCheckpoint: (data) => api.post('/patrol/log-checkpoint', data),
   getShift: (shiftId) => api.get(`/patrol/shift/${shiftId}`),
   getActiveShift: () => api.get('/patrol/active-shift'),

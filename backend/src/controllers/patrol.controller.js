@@ -1,5 +1,7 @@
 const prisma = require('../config/db');
 
+const isMissingCoordinate = (value) => value === undefined || value === null || value === '';
+
 const startShift = async (req, res) => {
   try {
     const { siteId, latitude, longitude } = req.body;
@@ -9,7 +11,7 @@ const startShift = async (req, res) => {
       return res.status(400).json({ error: 'Site ID is required' });
     }
 
-    if (!latitude || !longitude) {
+    if (isMissingCoordinate(latitude) || isMissingCoordinate(longitude)) {
       return res.status(400).json({ error: 'GPS location is required to start shift' });
     }
 
@@ -31,7 +33,10 @@ const startShift = async (req, res) => {
         siteId,
         status: 'ACTIVE',
         startLatitude: latitude,
-        startLongitude: longitude
+        startLongitude: longitude,
+        currentLatitude: latitude,
+        currentLongitude: longitude,
+        lastLocationAt: new Date()
       },
       include: {
         site: true,
@@ -58,7 +63,7 @@ const endShift = async (req, res) => {
     const { latitude, longitude } = req.body;
     const guardId = req.user.id;
 
-    if (!latitude || !longitude) {
+    if (isMissingCoordinate(latitude) || isMissingCoordinate(longitude)) {
       return res.status(400).json({ error: 'GPS location is required to end shift' });
     }
 
@@ -80,7 +85,10 @@ const endShift = async (req, res) => {
         endTime: new Date(),
         status: 'COMPLETED',
         endLatitude: latitude,
-        endLongitude: longitude
+        endLongitude: longitude,
+        currentLatitude: latitude,
+        currentLongitude: longitude,
+        lastLocationAt: new Date()
       },
       include: {
         site: true,
@@ -104,7 +112,7 @@ const logCheckpoint = async (req, res) => {
     const { shiftId, checkpointId, qrCode, latitude, longitude, notes } = req.body;
     const guardId = req.user.id;
 
-    if (!shiftId || !latitude || !longitude) {
+    if (!shiftId || isMissingCoordinate(latitude) || isMissingCoordinate(longitude)) {
       return res.status(400).json({ error: 'Shift ID, latitude, and longitude are required' });
     }
 
@@ -154,6 +162,15 @@ const logCheckpoint = async (req, res) => {
             name: true
           }
         }
+      }
+    });
+
+    await prisma.shift.update({
+      where: { id: shiftId },
+      data: {
+        currentLatitude: latitude,
+        currentLongitude: longitude,
+        lastLocationAt: new Date()
       }
     });
 
@@ -281,11 +298,55 @@ const getPatrolHistory = async (req, res) => {
   }
 };
 
+const updateLiveLocation = async (req, res) => {
+  try {
+    const { shiftId, latitude, longitude } = req.body;
+    const guardId = req.user.id;
+
+    if (!shiftId || isMissingCoordinate(latitude) || isMissingCoordinate(longitude)) {
+      return res.status(400).json({ error: 'Shift ID, latitude, and longitude are required' });
+    }
+
+    const shift = await prisma.shift.findFirst({
+      where: {
+        id: shiftId,
+        guardId,
+        status: 'ACTIVE'
+      }
+    });
+
+    if (!shift) {
+      return res.status(404).json({ error: 'Active shift not found' });
+    }
+
+    const updatedShift = await prisma.shift.update({
+      where: { id: shiftId },
+      data: {
+        currentLatitude: latitude,
+        currentLongitude: longitude,
+        lastLocationAt: new Date()
+      },
+      select: {
+        id: true,
+        currentLatitude: true,
+        currentLongitude: true,
+        lastLocationAt: true
+      }
+    });
+
+    res.json(updatedShift);
+  } catch (error) {
+    console.error('Update live location error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   startShift,
   endShift,
   logCheckpoint,
   getShiftDetails,
   getActiveShift,
+  updateLiveLocation,
   getPatrolHistory
 };

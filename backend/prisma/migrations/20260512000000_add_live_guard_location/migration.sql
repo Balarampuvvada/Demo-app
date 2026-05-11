@@ -1,0 +1,3 @@
+ALTER TABLE "Shift" ADD COLUMN "currentLatitude" DOUBLE PRECISION;
+ALTER TABLE "Shift" ADD COLUMN "currentLongitude" DOUBLE PRECISION;
+ALTER TABLE "Shift" ADD COLUMN "lastLocationAt" TIMESTAMP(3);

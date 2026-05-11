@@ -57,30 +57,35 @@ async function main() {
 
 
 
-  const site1 = await prisma.site.upsert({
-  where: {
-  id: 1
-  },
-  update: {},
-  create: {
-  id: 1,
-  name: 'Downtown Office Complex',
-  address: '123 Main Street, Downtown',
-  latitude: 40.7128,
-  longitude: -74.0060
-  }
+  let site1 = await prisma.site.findFirst({
+    where: { name: 'Downtown Office Complex' }
   });
 
-  const site2 = await prisma.site.upsert({
-    where: { name: 'Warehouse District A' },
-    update: {},
-    create: {
+  if (!site1) {
+    site1 = await prisma.site.create({
+      data: {
+        name: 'Downtown Office Complex',
+        address: '123 Main Street, Downtown',
+        latitude: 40.7128,
+        longitude: -74.0060
+      }
+    });
+  }
+
+  let site2 = await prisma.site.findFirst({
+    where: { name: 'Warehouse District A' }
+  });
+
+  if (!site2) {
+    site2 = await prisma.site.create({
+      data: {
       name: 'Warehouse District A',
       address: '456 Industrial Ave',
       latitude: 40.7580,
       longitude: -73.9855
-    }
-  });
+      }
+    });
+  }
 
   console.log('✅ Sites created');
 

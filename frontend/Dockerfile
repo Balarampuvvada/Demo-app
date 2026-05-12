@@ -10,7 +10,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Build-time environment variable for API URL
-ARG VITE_API_URL=https://security-patrol-backend-gvqc.onrender.com
+ARG VITE_API_URL=https://security-patrol-backend.onrender.com
 ENV VITE_API_URL=${VITE_API_URL}
 
 RUN npm run build

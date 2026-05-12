@@ -57,9 +57,9 @@ services:
     plan: starter
     envVars:
       - key: VITE_API_URL
-        value: https://security-patrol-backend-gvqc.onrender.com
+        value: https://security-patrol-backend.onrender.com
       - key: BACKEND_URL
-        value: https://security-patrol-backend-gvqc.onrender.com
+        value: https://security-patrol-backend.onrender.com
 
 databases:
   - name: security-patrol-db

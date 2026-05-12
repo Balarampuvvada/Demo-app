@@ -11,15 +11,41 @@ const adminRoutes = require('./routes/admin.routes');
 const app = express();
 
 // CORS configuration for production
+const normalizeOrigin = (origin) => origin?.replace(/\/$/, '');
+
+const allowedOrigins = [
+  process.env.CORS_ORIGIN,
+  'https://frontend-hrqz.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:5173'
+]
+  .filter(Boolean)
+  .flatMap((origin) => origin.split(','))
+  .map((origin) => normalizeOrigin(origin.trim()))
+  .filter(Boolean);
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'https://frontend-hrqz.onrender.com',
+  origin: (origin, callback) => {
+    // Allow non-browser requests such as health checks and server-to-server calls.
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+
+    console.warn(`Blocked CORS origin: ${origin}`);
+    return callback(null, false);
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-console.log('CORS_ORIGIN:', corsOptions.origin);
+console.log('Allowed CORS origins:', allowedOrigins.join(', '));
 
 // Middleware
 app.use(cors(corsOptions));

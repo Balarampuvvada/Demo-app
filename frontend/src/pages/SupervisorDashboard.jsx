@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supervisorApi } from '../api/client';
 
+const supervisorBackgroundStyle = {
+  backgroundImage: `linear-gradient(135deg, rgba(30, 64, 175, 0.76), rgba(79, 70, 229, 0.58), rgba(124, 58, 237, 0.46)), url('/images/security-background.jpg')`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat'
+};
+
 const SupervisorDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -196,12 +203,7 @@ const SupervisorDashboard = () => {
       <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
         <div 
           className="absolute inset-0"
-          style={{
-            backgroundImage: `url('/images/security-background.jpg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
+          style={supervisorBackgroundStyle}
         />
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative text-xl text-white drop-shadow-lg">Loading...</div>
@@ -211,15 +213,10 @@ const SupervisorDashboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Same background as login page */}
+      {/* Supervisor background */}
       <div 
         className="absolute inset-0"
-        style={{
-          backgroundImage: `url('/images/security-background.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        style={supervisorBackgroundStyle}
       />
       
       {/* Dark overlay for readability */}

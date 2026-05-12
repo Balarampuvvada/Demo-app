@@ -3,6 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { patrolApi, siteApi } from '../api/client';
 import QRScanner from '../components/QRScanner';
 
+const guardBackgroundStyle = {
+  backgroundImage: `linear-gradient(135deg, rgba(5, 95, 70, 0.74), rgba(15, 118, 110, 0.56), rgba(14, 116, 144, 0.52)), url('/images/security-background.jpg')`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat'
+};
+
 const GuardDashboard = () => {
   const { user, logout } = useAuth();
   const [activeShift, setActiveShift] = useState(null);
@@ -223,15 +230,10 @@ const GuardDashboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Same background as login page */}
+      {/* Guard background */}
       <div 
         className="absolute inset-0"
-        style={{
-          backgroundImage: `url('/images/security-background.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        style={guardBackgroundStyle}
       />
       
       {/* Dark overlay for readability */}

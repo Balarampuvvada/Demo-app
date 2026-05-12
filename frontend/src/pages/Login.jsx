@@ -9,6 +9,21 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const normalizedEmail = email.trim().toLowerCase();
+  const loginTheme = normalizedEmail.includes('supervisor') ? 'supervisor' : 'guard';
+  const backgroundStyle = {
+    backgroundImage: loginTheme === 'supervisor'
+      ? `linear-gradient(135deg, rgba(30, 64, 175, 0.72), rgba(67, 56, 202, 0.58)), url('/images/security-background.jpg')`
+      : `linear-gradient(135deg, rgba(5, 95, 70, 0.72), rgba(14, 116, 144, 0.58)), url('/images/security-background.jpg')`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  };
+  const focusClass = loginTheme === 'supervisor' ? 'focus:ring-indigo-300' : 'focus:ring-emerald-300';
+  const iconClass = loginTheme === 'supervisor' ? 'bg-indigo-500/80' : 'bg-emerald-500/80';
+  const buttonClass = loginTheme === 'supervisor'
+    ? 'bg-indigo-500/80 hover:bg-indigo-600/80 focus:ring-indigo-300'
+    : 'bg-emerald-500/80 hover:bg-emerald-600/80 focus:ring-emerald-300';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,12 +54,7 @@ const Login = () => {
       {/* Background with your custom image - NO OVERLAY FOR TESTING */}
       <div 
         className="absolute inset-0"
-        style={{
-          backgroundImage: `url('/images/security-background.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        style={backgroundStyle}
       />
       
       {/* Dark overlay - uncomment to add back */}
@@ -66,7 +76,7 @@ const Login = () => {
       <div className="max-w-md w-full mx-4 space-y-8 p-8 bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl z-10 border border-white/20">
         <div>
           {/* Security Icon */}
-          <div className="mx-auto w-16 h-16 bg-blue-500/80 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 shadow-lg">
+          <div className={`mx-auto w-16 h-16 ${iconClass} backdrop-blur-sm rounded-full flex items-center justify-center mb-4 shadow-lg`}>
             <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1 14.5l-3.5-3.5L8.91 11.6 11 13.69l4.59-4.59L17 10.5l-6 6z"/>
             </svg>
@@ -97,7 +107,7 @@ const Login = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-t-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-t-md focus:outline-none focus:ring-2 ${focusClass} focus:border-transparent focus:z-10 sm:text-sm`}
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -113,7 +123,7 @@ const Login = () => {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-b-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-white/30 placeholder-white/70 text-white bg-white/10 backdrop-blur-sm rounded-b-md focus:outline-none focus:ring-2 ${focusClass} focus:border-transparent focus:z-10 sm:text-sm`}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -125,7 +135,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-500/80 backdrop-blur-sm hover:bg-blue-600/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 disabled:opacity-50 shadow-lg transition-all"
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${buttonClass} backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 shadow-lg transition-all`}
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>

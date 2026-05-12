@@ -46,7 +46,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: CORS_ORIGIN
-        value: https://security-patrol-frontend-18tv.onrender.com
+        value: https://frontend-hrqz.onrender.com
 
   # Frontend
   - type: web

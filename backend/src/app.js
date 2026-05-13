@@ -32,7 +32,7 @@ const corsOptions = {
     }
 
     const normalizedOrigin = normalizeOrigin(origin);
-    if (allowedOrigins.includes(normalizedOrigin)) {
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
